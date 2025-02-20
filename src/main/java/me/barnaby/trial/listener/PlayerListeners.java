@@ -1,7 +1,7 @@
-package me.barnaby.milestones.listener;
+package me.barnaby.trial.listener;
 
-import me.barnaby.milestones.gui.GUI;
-import me.barnaby.milestones.gui.GUIItem;
+import me.barnaby.trial.gui.GUI;
+import me.barnaby.trial.gui.GUIItem;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryAction;

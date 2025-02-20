@@ -1,4 +1,4 @@
-package me.barnaby.milestones.gui;
+package me.barnaby.trial.gui;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -54,6 +54,10 @@ public class GUI implements InventoryHolder {
         items[index] = guiItem;
 
         inventory.setItem(index, guiItem.item());
+    }
+
+    public void open(Player player) {
+        player.openInventory(inventory);
     }
 
     public void onClick(InventoryClickEvent event) {}

@@ -1,4 +1,4 @@
-package me.barnaby.milestones.gui;
+package me.barnaby.trial.gui;
 
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;

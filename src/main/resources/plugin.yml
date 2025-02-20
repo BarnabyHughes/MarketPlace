@@ -1,6 +1,8 @@
-name: Milestones
+name: MarketPlace
 version: 1.0
-main: me.barnaby.milestones.Milestones
+main: me.barnaby.trial.MarketPlace
 author: Barnaby
-description: A fancy milestones plugin!
+description: A trial project
 api-version: 1.21
+commands:
+  milestones:
