@@ -1,6 +1,6 @@
 name: MarketPlace
 version: 1.21.4
-main: com.example.trial.MarketPlace
+main: me.barnaby.trial.MarketPlace
 api-version: 1.21
 commands:
   sell:
