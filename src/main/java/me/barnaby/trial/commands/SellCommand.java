@@ -13,6 +13,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Objects;
+
 public class SellCommand implements CommandExecutor {
 
     private final MarketPlace marketPlace;
@@ -42,10 +44,16 @@ public class SellCommand implements CommandExecutor {
             return true;
         }
 
+        // Check perm
+        if (!player.hasPermission(Objects.requireNonNull(marketPlace.getConfigManager().getConfig(ConfigType.MAIN).getString("permissions.sell")))) {
+            player.sendMessage(ChatColor.RED + "You do not have permission to use this command.");
+            return true;
+        }
+
         // Parse the price argument.
         double price;
         try {
-            price = Double.parseDouble(args[0]);
+            price = Math.round(Double.parseDouble(args[0]) * 100.0) / 100.0;
         } catch (NumberFormatException e) {
             player.sendMessage(ChatColor.RED + "Invalid price. Please enter a valid number.");
             return true;

@@ -45,7 +45,9 @@ public class MarketPlace extends JavaPlugin {
         registerDiscordHook();
 
         new BlackMarketRunnable(this)
-                .runTaskTimer(this,0,100);
+                .runTaskTimer(this,0,
+                        configManager.getConfig(ConfigType.MAIN)
+                                .getLong("blackmarket.add-items-every") * 20);
     }
 
     @Override

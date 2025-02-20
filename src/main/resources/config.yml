@@ -1,8 +1,12 @@
 permissions:
   sell: marketplace.sell # permission to sell an item on the marketplace
   view: marketplace.view # permission to view the marketplace
-  blackmarket: marketplace.blackmarket # permission to access the black market
-  history: marketplace.history # permission to view a users transaction history
+  blackmarket:
+    open: marketplace.blackmarket.view # permission to access the black market
+    refresh: marketplace.blackmarket.refresh # permission to force refresh the items in the black market
+  transactions:
+    self: marketplace.transactions.self # permission to view a users transaction history of oneself
+    other: marketplace.transactions.other # permission to view others transactions
 
 discord:
   webhook: "https://discordapp.com/api/webhooks/your_webhook_url"
@@ -10,4 +14,9 @@ discord:
     title: "Transaction Log"
     color: "#00FF00"
     description: "A purchase was made: %item% x%amount% for $%price% at %time% by %buyer% from %seller%"
+
+blackmarket:
+  add-items-every: 86400 # seconds - default: 1 day in seconds
+  price-modifier: 0.5
+  sell-bonus: 2 # this would mean the seller gains 2x what they sold it for
 

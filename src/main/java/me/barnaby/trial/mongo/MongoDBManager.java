@@ -237,7 +237,6 @@ public class MongoDBManager {
         if (allListings.isEmpty()) return;
 
         int itemsToMove = Math.min(5, allListings.size());
-        List<Document> selectedItems = new ArrayList<>();
 
         for (int i = 0; i < itemsToMove; i++) {
             Document listing = allListings.get(new Random().nextInt(allListings.size()));
@@ -248,7 +247,10 @@ public class MongoDBManager {
             String sellerId = listing.getString("playerId");
 
             double originalPrice = listing.getDouble("price");
-            double blackMarketPrice = originalPrice / 2;
+            double blackMarketPrice = originalPrice *
+                    plugin.getConfigManager().getConfig(ConfigType.MAIN).getDouble("blackmarket.price-modifier");
+            blackMarketPrice = Math.round(blackMarketPrice * 100.0) / 100.0;
+
 
             // Update listing to black market
             listing.put("price", blackMarketPrice);
