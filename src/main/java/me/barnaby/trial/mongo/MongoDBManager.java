@@ -223,4 +223,15 @@ public class MongoDBManager {
         MongoCollection<Document> collection = getCollection("transactions");
         return collection.find(new Document("playerId", playerId)).into(new ArrayList<>());
     }
+
+    /**
+     * Retrieves all item listings from the "itemListings" collection.
+     *
+     * @return A list of Documents representing all item listings.
+     */
+    public List<Document> getAllItemListings() {
+        MongoCollection<Document> collection = getCollection("itemListings");
+        return collection.find().into(new ArrayList<>());
+    }
+
 }
