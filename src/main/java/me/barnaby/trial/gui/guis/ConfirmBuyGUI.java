@@ -54,7 +54,8 @@ public class ConfirmBuyGUI extends GUI {
         this.marketPlace = marketPlace;
         this.player = player;
         this.listing = listing;
-        this.price = price;
+        this.price = price / marketPlace.getConfigManager().getConfig(ConfigType.MAIN)
+                .getDouble("blackmarket.price-modifier");
         this.isBlackMarket = isBlackMarket;
         this.guiConfig = marketPlace.getConfigManager().getConfig(ConfigType.GUI);
         this.messagesConfig = marketPlace.getConfigManager().getConfig(ConfigType.MESSAGES);
@@ -149,7 +150,7 @@ public class ConfirmBuyGUI extends GUI {
             // Give the item to the buyer.
             player.getInventory().addItem(listing.item);
             // Send success message and sound.
-            sendSuccessFeedback(newBuyingPrice);
+            sendSuccessFeedback(newBuyingPrice, newSellingPrice, seller.getPlayer());
             // Record the transaction.
             marketPlace.getMongoDBManager().recordTransaction(
                     player.getUniqueId().toString(),
@@ -190,8 +191,9 @@ public class ConfirmBuyGUI extends GUI {
      *
      * @param newBuyingPrice The modified buying price.
      */
-    private void sendSuccessFeedback(double newBuyingPrice) {
+    private void sendSuccessFeedback(double newBuyingPrice, double newSellingPrice, Player seller) {
         String successMsg;
+        String sellMsg;
         if (isBlackMarket) {
             successMsg = messagesConfig.getString("blackmarket.success-message",
                             "&aPurchase &8> &fYou bought %item% for &c&m%oldprice%&f %price%!")
@@ -199,13 +201,32 @@ public class ConfirmBuyGUI extends GUI {
                     .replace("%amount%", String.valueOf(listing.item.getAmount()))
                     .replace("%oldprice%", String.valueOf(price))
                     .replace("%price%", String.valueOf(newBuyingPrice));
+
+            sellMsg = messagesConfig.getString("blackmarket.sold-message",
+                            "&aPurchase &8> &fYou sold %item% for &a&m%oldprice%&f %price%!")
+                    .replace("%item%", StringUtil.formatItem(listing.item))
+                    .replace("%amount%", String.valueOf(listing.item.getAmount()))
+                    .replace("%oldprice%", String.valueOf(price))
+                    .replace("%price%", String.valueOf(newSellingPrice));
+
+
         } else {
-            successMsg = messagesConfig.getString("confirmbuy-gui.success-message", "&aPurchase successful!");
+            successMsg = messagesConfig.getString("buy-messages.success-message", "&aPurchase successful!");
+            sellMsg = messagesConfig.getString("sell-messages.sold-message", "&aPurchase sold!");
         }
         player.sendMessage(StringUtil.format(successMsg));
         String successSound = messagesConfig.getString("confirmbuy-gui.success-sound", "ENTITY_PLAYER_LEVELUP");
+        if (seller != null) seller.sendMessage(StringUtil.format(sellMsg)
+                .replace("%item%", StringUtil.formatItem(listing.item))
+                .replace("%amount%", String.valueOf(listing.item.getAmount()))
+                .replace("%oldprice%", String.valueOf(price))
+                .replace("%price%", String.valueOf(newSellingPrice)));
+
         try {
             player.playSound(player.getLocation(), Sound.valueOf(successSound.toUpperCase()), 1.0f, 1.0f);
+
+            if (seller!= null) seller.playSound(seller.getLocation(), Sound.valueOf(successSound.toUpperCase()), 1.0f, 1.0f);
+
         } catch (IllegalArgumentException ex) {
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
         }

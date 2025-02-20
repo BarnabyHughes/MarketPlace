@@ -248,14 +248,14 @@ public class MongoDBManager {
 
             String sellerId = listing.getString("playerId");
 
-            double originalPrice = listing.getDouble("price");
-            double blackMarketPrice = originalPrice *
-                    plugin.getConfigManager().getConfig(ConfigType.MAIN).getDouble("blackmarket.price-modifier");
-            blackMarketPrice = Math.round(blackMarketPrice * 100.0) / 100.0;
+                double originalPrice = listing.getDouble("price");
+                double blackMarketPrice = originalPrice *
+                        plugin.getConfigManager().getConfig(ConfigType.MAIN).getDouble("blackmarket.price-modifier");
+                blackMarketPrice = Math.round(blackMarketPrice * 100.0) / 100.0;
 
 
-            // Update listing to black market
-            listing.put("price", blackMarketPrice);
+                // Update listing to black market
+                listing.put("price", blackMarketPrice);
             listing.put("isBlackMarket", true);
 
             Player player = Bukkit.getPlayer(UUID.fromString(sellerId));

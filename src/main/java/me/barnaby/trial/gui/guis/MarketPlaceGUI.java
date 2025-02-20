@@ -133,6 +133,8 @@ public class MarketPlaceGUI extends GUI {
                         player.sendMessage(ChatColor.RED + "This is your own market listing!");
                         return;
                     }
+
+
                     if (!canAfford) {
                         // Send cannot-afford message.
                         String msg = guiConfig.getString(isBlackMarket ? "blackmarket-gui.cannot-afford-message" : "marketplace-gui.cannot-afford-message", "&cYou cannot afford this item!");
