@@ -1,111 +1,117 @@
 package me.barnaby.trial.config;
 
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.EnumMap;
+import java.util.Map;
 
+/**
+ * ConfigManager handles the initialization, loading, saving, and reloading
+ * of different configuration files defined in the ConfigType enum.
+ */
 public class ConfigManager {
 
-    private final JavaPlugin plugin;
-    private FileConfiguration config;
-    private File configFile;
+    // Map to hold FileConfiguration objects for each ConfigType
+    private final Map<ConfigType, FileConfiguration> configs = new EnumMap<>(ConfigType.class);
+    // Map to hold File objects for each ConfigType
+    private final Map<ConfigType, File> configFiles = new EnumMap<>(ConfigType.class);
 
+    // Reference to the main plugin instance
+    private final JavaPlugin plugin;
+
+    /**
+     * Constructor which initializes the ConfigManager and loads all configuration files.
+     *
+     * @param plugin The main plugin instance.
+     */
     public ConfigManager(JavaPlugin plugin) {
         this.plugin = plugin;
-        initialize();
+        initializeConfigs();
     }
 
     /**
-     * Initializes the configuration by loading defaults and copying them if necessary.
+     * Iterates over all ConfigType values and initializes their corresponding files.
      */
-    private void initialize() {
-        // Save the default config.yml if it doesn't exist
-        plugin.saveDefaultConfig();
+    private void initializeConfigs() {
+        for (ConfigType type : ConfigType.values()) {
+            // Get the file name from the enum
+            String fileName = type.getFileName();
+            // Create a File object in the plugin's data folder
+            File configFile = new File(plugin.getDataFolder(), fileName);
+            configFiles.put(type, configFile);
 
-        // Load the configuration
-        config = plugin.getConfig();
+            // If the file doesn't exist, copy the default from the jar
+            if (!configFile.exists()) {
+                configFile.getParentFile().mkdirs();
+                plugin.saveResource(fileName, false);
+            }
 
-        // Set the configuration to copy defaults
-        config.options().copyDefaults(true);
-
-        // Save the configuration to apply defaults to the file
-        saveConfig();
+            // Load the configuration from the file
+            FileConfiguration configuration = YamlConfiguration.loadConfiguration(configFile);
+            configs.put(type, configuration);
+        }
     }
 
     /**
-     * Reloads the configuration from the file.
-     */
-    public void reloadConfig() {
-        plugin.reloadConfig();
-        config = plugin.getConfig();
-    }
-
-    /**
-     * Saves the current configuration to the file.
-     */
-    public void saveConfig() {
-        plugin.saveConfig();
-    }
-
-    /**
-     * Gets a value from the config with the given path.
+     * Returns the FileConfiguration for a given ConfigType.
      *
-     * @param path The config path (e.g., "settings.enable-feature").
-     * @return The object (cast as needed) or null if not found.
+     * @param type The type of configuration to retrieve.
+     * @return The FileConfiguration associated with that type.
      */
-    public Object get(String path) {
-        return config.get(path);
+    public FileConfiguration getConfig(ConfigType type) {
+        return configs.get(type);
     }
 
     /**
-     * Gets a string value from the config with a default.
+     * Reloads a specific configuration file.
      *
-     * @param path The config path.
-     * @param defaultValue The default value if not found.
-     * @return The string value.
+     * @param type The type of configuration to reload.
      */
-    public String getString(String path, String defaultValue) {
-        return config.getString(path, defaultValue);
+    public void reloadConfig(ConfigType type) {
+        File file = configFiles.get(type);
+        if (file != null) {
+            FileConfiguration configuration = YamlConfiguration.loadConfiguration(file);
+            configs.put(type, configuration);
+        }
     }
 
     /**
-     * Gets an integer value from the config with a default.
+     * Saves a specific configuration file.
      *
-     * @param path The config path.
-     * @param defaultValue The default value if not found.
-     * @return The integer value.
+     * @param type The type of configuration to save.
      */
-    public int getInt(String path, int defaultValue) {
-        return config.getInt(path, defaultValue);
+    public void saveConfig(ConfigType type) {
+        File file = configFiles.get(type);
+        FileConfiguration configuration = configs.get(type);
+        if (file != null && configuration != null) {
+            try {
+                configuration.save(file);
+            } catch (IOException e) {
+                plugin.getLogger().severe("Could not save " + type.getFileName() + ": " + e.getMessage());
+            }
+        }
     }
 
     /**
-     * Gets a boolean value from the config with a default.
-     *
-     * @param path The config path.
-     * @param defaultValue The default value if not found.
-     * @return The boolean value.
+     * Reloads all configuration files.
      */
-    public boolean getBoolean(String path, boolean defaultValue) {
-        return config.getBoolean(path, defaultValue);
+    public void reloadAllConfigs() {
+        for (ConfigType type : ConfigType.values()) {
+            reloadConfig(type);
+        }
     }
 
     /**
-     * Sets a value in the config and saves it.
-     *
-     * @param path  The config path.
-     * @param value The value to set.
+     * Saves all configuration files.
      */
-    public void set(String path, Object value) {
-        config.set(path, value);
-        saveConfig();
-    }
-
-    /**
-     * Returns the raw config object if needed.
-     */
-    public FileConfiguration getConfig() {
-        return config;
+    public void saveAllConfigs() {
+        for (ConfigType type : ConfigType.values()) {
+            saveConfig(type);
+        }
     }
 }
+

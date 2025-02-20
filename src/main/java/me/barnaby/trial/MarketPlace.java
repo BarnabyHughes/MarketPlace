@@ -13,7 +13,7 @@ public class MarketPlace extends JavaPlugin {
     public void onEnable() {
         sendEnableMessage();
 
-        this.getCommand("milestones").setExecutor(new MilestoneCommand(this));
+
     }
 
 

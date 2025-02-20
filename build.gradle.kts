@@ -12,6 +12,9 @@ repositories {
 dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.mongodb:mongodb-driver-sync:4.10.2")
+
+
 
     // Corrected Spigot API reference
     compileOnly(files("libs/spigot-api-1.21.4-R0.1-SNAPSHOT.jar"))

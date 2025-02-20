@@ -1,8 +1,18 @@
 name: MarketPlace
-version: 1.0
-main: me.barnaby.trial.MarketPlace
-author: Barnaby
-description: A trial project
+version: 1.21.4
+main: com.example.trial.MarketPlace
 api-version: 1.21
 commands:
-  milestones:
+  sell:
+    description: List the item in your hand for sale.
+    usage: /sell <price>
+  marketplace:
+    description: View the marketplace.
+    usage: /marketplace
+  blackmarket:
+    description: Refresh and view the black market.
+    usage: /blackmarket
+  transactions:
+    description: View your transaction history.
+    usage: /transactions
+depend: [Vault]
