@@ -12,8 +12,10 @@ import me.barnaby.trial.MarketPlace;
 import me.barnaby.trial.config.ConfigType;
 import org.bson.Document;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -221,7 +223,11 @@ public class MongoDBManager {
      */
     public List<Document> getTransactionHistory(String playerId) {
         MongoCollection<Document> collection = getCollection("transactions");
-        return collection.find(new Document("playerId", playerId)).into(new ArrayList<>());
+        Document query = new Document("$or", Arrays.asList(
+                new Document("sellerId", playerId),
+                new Document("buyerId", playerId)
+        ));
+        return collection.find(query).into(new ArrayList<>());
     }
 
     /**
@@ -233,5 +239,24 @@ public class MongoDBManager {
         MongoCollection<Document> collection = getCollection("itemListings");
         return collection.find().into(new ArrayList<>());
     }
+
+    /**
+     * Records a transaction between a buyer and a seller.
+     *
+     * @param buyerId  The UUID string of the buyer.
+     * @param sellerId The UUID string of the seller.
+     * @param item     The item purchased.
+     * @param price    The price of the item.
+     */
+    public void recordTransaction(String buyerId, String sellerId, ItemStack item, double price) {
+        Document transaction = new Document();
+        transaction.append("buyerId", buyerId)
+                .append("sellerId", sellerId)
+                .append("itemData", item.serialize())
+                .append("price", price)
+                .append("timestamp", System.currentTimeMillis());
+        insertTransaction(transaction);
+    }
+
 
 }

@@ -68,15 +68,14 @@ public class ConfirmBuyGUI extends GUI {
         }
         setItem(confirmSlot, new GUIItem(confirmItem, e -> {
             e.setCancelled(true);
-            // Double-check balance before purchase.
             if (marketPlace.getEconomy().getBalance(player) < price) {
                 String failMsg = messagesConfig.getString("confirmbuy-gui.failure-message", "&cYou cannot afford this item!");
                 player.sendMessage(StringUtil.format(failMsg));
                 String failSound = messagesConfig.getString("confirmbuy-gui.failure-sound", "ENTITY_VILLAGER_NO");
                 try {
-                    player.playSound(player.getLocation(), Sound.valueOf(failSound.toUpperCase()), 1.0f, 1.0f);
+                    player.playSound(player.getLocation(), org.bukkit.Sound.valueOf(failSound.toUpperCase()), 1.0f, 1.0f);
                 } catch (IllegalArgumentException ex) {
-                    player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+                    player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
                 }
             } else {
                 // Deduct the money and give the item.
@@ -86,14 +85,22 @@ public class ConfirmBuyGUI extends GUI {
                 player.sendMessage(StringUtil.format(successMsg));
                 String successSound = messagesConfig.getString("confirmbuy-gui.success-sound", "ENTITY_PLAYER_LEVELUP");
                 try {
-                    player.playSound(player.getLocation(), Sound.valueOf(successSound.toUpperCase()), 1.0f, 1.0f);
+                    player.playSound(player.getLocation(), org.bukkit.Sound.valueOf(successSound.toUpperCase()), 1.0f, 1.0f);
                 } catch (IllegalArgumentException ex) {
-                    player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+                    player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
                 }
+                // Record the transaction (buyer, seller, item, price).
+                marketPlace.getMongoDBManager().recordTransaction(
+                        player.getUniqueId().toString(),
+                        listing.doc.getString("playerId"),
+                        listing.item,
+                        price);
+                // Remove the listing from the marketplace (using its unique _id).
+                marketPlace.getMongoDBManager().deleteValue("itemListings", new Document("_id", listing.doc.get("_id")));
                 player.closeInventory();
-                // Optionally: remove the listing from the marketplace.
             }
         }));
+
 
         // --- Cancel Button ---
         int cancelSlot = guiConfig.getInt("confirmbuy-gui.cancel.slot", 15);

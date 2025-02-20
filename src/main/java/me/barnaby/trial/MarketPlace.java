@@ -2,6 +2,7 @@ package me.barnaby.trial;
 
 import me.barnaby.trial.commands.MarketplaceCommand;
 import me.barnaby.trial.commands.SellCommand;
+import me.barnaby.trial.commands.TransactionsCommand;
 import me.barnaby.trial.config.ConfigManager;
 import me.barnaby.trial.listener.PlayerListeners;
 import me.barnaby.trial.mongo.MongoDBManager;
@@ -42,6 +43,7 @@ public class MarketPlace extends JavaPlugin {
     private void registerCommands() {
         getCommand("sell").setExecutor(new SellCommand(this));
         getCommand("marketplace").setExecutor(new MarketplaceCommand(this));
+        getCommand("transactions").setExecutor(new TransactionsCommand(this));
     }
 
     public ConfigManager getConfigManager() {
