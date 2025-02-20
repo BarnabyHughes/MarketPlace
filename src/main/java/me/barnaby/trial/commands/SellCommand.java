@@ -1,6 +1,9 @@
 package me.barnaby.trial.commands;
 
 import me.barnaby.trial.MarketPlace;
+import me.barnaby.trial.config.ConfigType;
+import me.barnaby.trial.gui.guis.SellGUI;
+import me.barnaby.trial.util.StringUtil;
 import org.bson.Document;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -48,31 +51,21 @@ public class SellCommand implements CommandExecutor {
             return true;
         }
 
+        if (price <= 0) {
+            String invalidMsg = marketPlace.getConfigManager().getConfig(ConfigType.MESSAGES)
+                    .getString("sell-messages.invalid-price", "&cPlease set a valid price first!");
+            player.sendMessage(StringUtil.format(invalidMsg));
+        }
+
         // Get the item in the player's main hand.
         ItemStack itemInHand = player.getInventory().getItemInMainHand();
-        if (itemInHand == null || itemInHand.getType() == Material.AIR) {
+        if (itemInHand.getType() == Material.AIR) {
             player.sendMessage(ChatColor.RED + "You must hold an item in your hand to sell!");
             return true;
         }
 
-        // Remove the item from the player's hand.
-        player.getInventory().setItemInMainHand(null);
-
-        // Serialize the item using Bukkit's built-in serialization.
-        // This converts the item to a Map which we wrap in a Document.
-        Document itemDoc = new Document(itemInHand.serialize());
-
-        // Create a new document representing the listing.
-        Document listing = new Document()
-                .append("playerId", player.getUniqueId().toString())
-                .append("price", price)
-                .append("itemData", itemDoc)
-                .append("timestamp", System.currentTimeMillis());
-
-        // Insert the listing into MongoDB.
-        marketPlace.getMongoDBManager().insertItemListing(listing);
-
-        player.sendMessage(ChatColor.GREEN + "Your item has been listed for sale at $" + price);
+        new SellGUI(marketPlace, player.getInventory().getItemInMainHand(), price, player,
+                marketPlace.getConfigManager().getConfig(ConfigType.GUI)).open(player);
         return true;
     }
 }

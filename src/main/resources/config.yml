@@ -1,1 +1,6 @@
-test: "testing123"
+permissions:
+  sell: marketplace.sell # permission to sell an item on the marketplace
+  view: marketplace.view # permission to view the marketplace
+  blackmarket: marketplace.blackmarket # permission to access the black market
+  history: marketplace.history # permission to view a users transaction history
+

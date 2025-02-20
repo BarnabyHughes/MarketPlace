@@ -1,0 +1,21 @@
+sellgui:
+  name: "&fSell &b%item% &3x%amount%"
+  rows: 4
+  confirm:
+    material: "GREEN_STAINED_GLASS_PANE"
+    name: "&aConfirm"
+    lore:
+      - "&7Click here to confirm the sale."
+    slot: 27
+  cancel:
+    material: "RED_STAINED_GLASS_PANE"
+    name: "&cCancel"
+    lore:
+      - "&7Click here to cancel the sale."
+    slot: 35
+  price:
+    material: "OAK_SIGN"
+    name: "&ePrice: $"
+    lore:
+      - "&7This is the set sale price."
+    slot: 31

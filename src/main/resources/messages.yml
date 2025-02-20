@@ -1,0 +1,4 @@
+sell-messages:
+  invalid-price: "&cPlease set a valid price first!"
+  sale-success: "&aItem listed for sale at $%price%"
+  sale-cancelled: "&cSale cancelled."

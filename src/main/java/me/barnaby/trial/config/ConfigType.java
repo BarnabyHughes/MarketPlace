@@ -7,7 +7,8 @@ package me.barnaby.trial.config;
 public enum ConfigType {
     MAIN("config.yml"),
     MESSAGES("messages.yml"),
-    MONGO("mongo.yml");
+    MONGO("mongo.yml"),
+    GUI("guis.yml"),;
 
     private final String fileName;
 

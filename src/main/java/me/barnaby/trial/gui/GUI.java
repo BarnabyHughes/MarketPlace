@@ -56,6 +56,14 @@ public class GUI implements InventoryHolder {
         inventory.setItem(index, guiItem.item());
     }
 
+    public void addItem(GUIItem guiItem) {
+        int index = inventory.firstEmpty();
+        items[index] = guiItem;
+
+        inventory.setItem(index, guiItem.item());
+    }
+
+
     public void open(Player player) {
         player.openInventory(inventory);
     }

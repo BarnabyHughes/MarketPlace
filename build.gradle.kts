@@ -1,7 +1,6 @@
 plugins {
     id("java")
     id("com.gradleup.shadow") version "8.3.0"
-
 }
 
 group = "org.example"
@@ -21,7 +20,7 @@ dependencies {
     // Spigot API (provided as compileOnly).
     compileOnly(files("libs/spigot-api-1.21.4-R0.1-SNAPSHOT.jar"))
 
-    // Explicitly add ASM dependencies that support Java 21.
+    // Explicitly add ASM dependencies that support Java 21/22.
     implementation("org.ow2.asm:asm:9.4")
     implementation("org.ow2.asm:asm-commons:9.4")
 }
@@ -40,7 +39,8 @@ tasks.test {
 }
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+    // Set the toolchain to Java 23 (or a version you have installed).
+    toolchain.languageVersion.set(JavaLanguageVersion.of(23))
 }
 
 tasks.shadowJar {
@@ -62,4 +62,3 @@ tasks.register<Copy>("copyToIntelliJServer") {
 tasks.build {
     finalizedBy("copyToIntelliJServer")
 }
-

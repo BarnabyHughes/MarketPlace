@@ -16,10 +16,7 @@ public class PlayerListeners implements Listener {
         if (event.getClickedInventory() == null) return;
 
         if (event.getClickedInventory().getType() == InventoryType.PLAYER) {
-            if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY || event.getClick().isShiftClick()) {
-                event.setCancelled(true);
-            }
-            return;
+            event.setCancelled(true);
         }
 
         gui.onClick(event);
@@ -27,6 +24,7 @@ public class PlayerListeners implements Listener {
         GUIItem item = gui.getItem(event.getSlot());
         if (item == null) return;
 
+        event.setCancelled(true);
         item.onClick(event);
     }
 

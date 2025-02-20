@@ -3,9 +3,11 @@ package me.barnaby.trial;
 import me.barnaby.trial.commands.MarketplaceCommand;
 import me.barnaby.trial.commands.SellCommand;
 import me.barnaby.trial.config.ConfigManager;
+import me.barnaby.trial.listener.PlayerListeners;
 import me.barnaby.trial.mongo.MongoDBManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class MarketPlace extends JavaPlugin {
@@ -15,10 +17,12 @@ public class MarketPlace extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        sendEnableMessage();
-        registerCommands();
-
         mongoDBManager.connect();
+
+        registerCommands();
+        registerListeners();
+
+        sendEnableMessage();
     }
 
     @Override
@@ -26,8 +30,12 @@ public class MarketPlace extends JavaPlugin {
         sendDisableMessage();
     }
 
+    private void registerListeners() {
+        PluginManager pm = Bukkit.getPluginManager();
+        pm.registerEvents(new PlayerListeners(), this);
+    }
 
-    public void registerCommands() {
+    private void registerCommands() {
         getCommand("sell").setExecutor(new SellCommand(this));
         getCommand("marketplace").setExecutor(new MarketplaceCommand(this));
     }
