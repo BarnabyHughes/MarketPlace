@@ -8,6 +8,9 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    maven(url = "https://jitpack.io")
+    maven(url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+
 }
 
 dependencies {
@@ -16,6 +19,7 @@ dependencies {
 
     // MongoDB driver needed at runtime.
     implementation("org.mongodb:mongodb-driver-sync:4.10.2")
+    compileOnly("com.github.MilkBowl:VaultAPI:1.7")
 
     // Spigot API (provided as compileOnly).
     compileOnly(files("libs/spigot-api-1.21.4-R0.1-SNAPSHOT.jar"))

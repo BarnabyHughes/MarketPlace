@@ -19,3 +19,33 @@ sellgui:
     lore:
       - "&7This is the set sale price."
     slot: 31
+
+marketplace-gui:
+  name: "&bMarketplace"
+  rows: 6
+  items-area:
+    start-slot: 0
+    end-slot: 44
+  can-afford-item-name: "&a&l%item-name%"
+  cannot-afford-item-name: "&c&l%item-name%"
+  can-afford-item-lore:
+    - "&7Price: $%price%"
+    - "&7Seller: %seller%"
+    - "&7Listed: %listedTime%"
+  cannot-afford-item-lore:
+    - "&7Price: $%price%"
+    - "&cNot enough funds!"
+    - "&7Seller: %seller%"
+    - "&7Listed: %listedTime%"
+  next-page:
+    material: "ARROW"
+    name: "&aNext Page"
+    lore:
+      - "&7Click to view the next page."
+    slot: 53
+  previous-page:
+    material: "ARROW"
+    name: "&aPrevious Page"
+    lore:
+      - "&7Click to view the previous page."
+    slot: 45
