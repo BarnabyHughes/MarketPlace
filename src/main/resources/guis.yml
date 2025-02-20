@@ -52,3 +52,19 @@ marketplace-gui:
     lore:
       - "&7Click to view the previous page."
     slot: 45
+
+confirmbuy-gui:
+  name: "&aConfirm Purchase"
+  rows: 3
+  confirm:
+    material: "GREEN_STAINED_GLASS_PANE"
+    name: "&aConfirm Purchase"
+    lore:
+      - "&7Click to confirm and purchase %item% x%amount% for $%price%"
+    slot: 11
+  cancel:
+    material: "RED_STAINED_GLASS_PANE"
+    name: "&cCancel"
+    lore:
+      - "&7Click to cancel the purchase."
+    slot: 15

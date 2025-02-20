@@ -94,11 +94,13 @@ public class MarketPlaceGUI extends GUI {
                 // Clone the item so as not to modify the original.
                 ItemStack displayItem = listing.item.clone();
                 ItemMeta meta = displayItem.getItemMeta();
+                // Retrieve price from document.
+                double listingPrice = listing.doc.getDouble("price");
+                // Check if player can afford the item.
+                boolean canAfford = marketPlace.getEconomy().getBalance(player) >= listingPrice;
+
                 if (meta != null) {
-                    // Retrieve price from document.
-                    double listingPrice = listing.doc.getDouble("price");
-                    // Check if player can afford the item.
-                    boolean canAfford = marketPlace.getEconomy().getBalance(player) >= listingPrice;
+
 
                     // Determine the display name based on affordability.
                     String defaultItemName = (meta.hasDisplayName() ? meta.getDisplayName() :
@@ -135,8 +137,23 @@ public class MarketPlaceGUI extends GUI {
                     displayItem.setItemMeta(meta);
                 }
                 setItem(slot, new GUIItem(displayItem, e -> {
+                    System.out.println("test");
                     e.setCancelled(true);
-                    // Optionally, add code to handle purchasing when an item is clicked.
+                    if (!canAfford) {
+                        // Get a configurable "cannot afford" message and sound
+                        String cannotAffordMsg = guiConfig.getString("marketplace-gui.cannot-afford-message", "&cYou cannot afford this item!");
+                        player.sendMessage(StringUtil.format(cannotAffordMsg));
+                        String soundName = guiConfig.getString("marketplace-gui.cannot-afford-sound", "ENTITY_VILLAGER_NO");
+                        try {
+                            player.playSound(player.getLocation(), org.bukkit.Sound.valueOf(soundName.toUpperCase()), 1.0f, 1.0f);
+                        } catch (IllegalArgumentException ex) {
+                            player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+                        }
+                    } else {
+                        // Open the configurable Confirm Buy GUI
+                        ConfirmBuyGUI confirmBuyGUI = new ConfirmBuyGUI(marketPlace, player, listing, listingPrice);
+                        confirmBuyGUI.open(player);
+                    }
                 }));
             }
         }
@@ -214,7 +231,7 @@ public class MarketPlaceGUI extends GUI {
     /**
      * A helper inner class to wrap an ItemStack with its associated Document.
      */
-    private static class Listing {
+    public static class Listing {
         public final ItemStack item;
         public final Document doc;
 

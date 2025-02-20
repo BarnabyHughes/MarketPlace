@@ -2,3 +2,10 @@ sell-messages:
   invalid-price: "&cPlease set a valid price first!"
   sale-success: "&aItem listed for sale at $%price%"
   sale-cancelled: "&cSale cancelled."
+
+buy-messages:
+  success-message: "&aPurchase successful! Enjoy your item."
+  success-sound: "ENTITY_PLAYER_LEVELUP"
+  failure-message: "&cYou cannot afford this item!"
+  failure-sound: "ENTITY_VILLAGER_NO"
+  cancel-message: "&cPurchase cancelled."
