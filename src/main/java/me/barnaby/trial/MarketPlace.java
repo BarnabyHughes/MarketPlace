@@ -1,5 +1,6 @@
 package me.barnaby.trial;
 
+import me.barnaby.trial.commands.BlackMarketCommand;
 import me.barnaby.trial.commands.MarketplaceCommand;
 import me.barnaby.trial.commands.SellCommand;
 import me.barnaby.trial.commands.TransactionsCommand;
@@ -8,6 +9,7 @@ import me.barnaby.trial.config.ConfigType;
 import me.barnaby.trial.discord.DiscordWebhookLogger;
 import me.barnaby.trial.listener.PlayerListeners;
 import me.barnaby.trial.mongo.MongoDBManager;
+import me.barnaby.trial.runnables.BlackMarketRunnable;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -41,6 +43,9 @@ public class MarketPlace extends JavaPlugin {
 
         // Register Discord webhook for transaction logging.
         registerDiscordHook();
+
+        new BlackMarketRunnable(this)
+                .runTaskTimer(this,0,100);
     }
 
     @Override
@@ -63,6 +68,7 @@ public class MarketPlace extends JavaPlugin {
         getCommand("sell").setExecutor(new SellCommand(this));
         getCommand("marketplace").setExecutor(new MarketplaceCommand(this));
         getCommand("transactions").setExecutor(new TransactionsCommand(this));
+        getCommand("blackmarket").setExecutor(new BlackMarketCommand(this));
     }
 
     /**

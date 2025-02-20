@@ -13,3 +13,6 @@ buy-messages:
 transaction:
   buy: "Bought %item% x%amount% for $%price% on %time%"
   sell: "Sold %item% x%amount% for $%price% on %time%"
+
+blackmarket:
+  black-market-item: "&cBlackMarket &8> &fYour %item% was moved from the market to the black market!"

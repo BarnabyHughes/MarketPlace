@@ -11,17 +11,16 @@ import com.mongodb.client.model.UpdateOptions;
 import dev.s7a.base64.Base64ItemStack;
 import me.barnaby.trial.MarketPlace;
 import me.barnaby.trial.config.ConfigType;
-import me.barnaby.trial.discord.DiscordWebhookLogger;
+import me.barnaby.trial.util.StringUtil;
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
-import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
@@ -225,5 +224,60 @@ public class MongoDBManager {
                 .append("price", price)
                 .append("timestamp", System.currentTimeMillis());
         insertTransaction(transaction);
+    }
+
+    /**
+     * Moves 5 random items from the marketplace to the black market.
+     * - Halves their price
+     * - Doubles seller's profits
+     * - Marks them as `isBlackMarket: true`
+     */
+    public void moveItemsToBlackMarket() {
+        List<Document> allListings = getAllItemListings();
+        if (allListings.isEmpty()) return;
+
+        int itemsToMove = Math.min(5, allListings.size());
+        List<Document> selectedItems = new ArrayList<>();
+
+        for (int i = 0; i < itemsToMove; i++) {
+            Document listing = allListings.get(new Random().nextInt(allListings.size()));
+
+            // Ensure the item is not already black market
+            if (listing.getBoolean("isBlackMarket", false)) continue;
+
+            String sellerId = listing.getString("playerId");
+
+            double originalPrice = listing.getDouble("price");
+            double blackMarketPrice = originalPrice / 2;
+
+            // Update listing to black market
+            listing.put("price", blackMarketPrice);
+            listing.put("isBlackMarket", true);
+
+            Player player = Bukkit.getPlayer(UUID.fromString(sellerId));
+            if (player != null) {
+                player.sendMessage(
+                        StringUtil.format(plugin.getConfigManager().getConfig(ConfigType.MESSAGES)
+                                .getString("blackmarket.black-market-item")
+                                .replace("%item%",
+                                        StringUtil.formatItem(
+                                                Base64ItemStack.decode(listing.getString("itemData")))))
+                );
+            }
+
+            // Save updated listing
+            setValue("itemListings", new Document("_id", listing.get("_id")), listing);
+        }
+    }
+
+    /**
+     * Retrieves all black market listings.
+     *
+     * @return A list of Documents representing all black market listings.
+     */
+    public List<Document> getBlackMarketListings() {
+        return getCollection("itemListings")
+                .find(new Document("isBlackMarket", true))
+                .into(new ArrayList<>());
     }
 }
