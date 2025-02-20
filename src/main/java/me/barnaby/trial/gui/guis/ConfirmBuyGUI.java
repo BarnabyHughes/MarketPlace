@@ -7,7 +7,6 @@ import me.barnaby.trial.gui.GUIItem;
 import me.barnaby.trial.util.ListingUtil;
 import me.barnaby.trial.util.StringUtil;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -20,16 +19,18 @@ import java.util.stream.Collectors;
 import static me.barnaby.trial.util.ListingUtil.formatTimestamp;
 import static me.barnaby.trial.util.ListingUtil.getSellerName;
 
+/**
+ * GUI for confirming a purchase.
+ */
 public class ConfirmBuyGUI extends GUI {
 
     private final MarketPlace marketPlace;
     private final Player player;
-    // The listing being purchased (contains the item and its document)
+    // The listing being purchased (contains the item and its document).
     private final ListingUtil.Listing listing;
     private final double price;
     private final FileConfiguration guiConfig;
     private final FileConfiguration messagesConfig;
-
 
     /**
      * Constructs the ConfirmBuyGUI.
@@ -42,8 +43,7 @@ public class ConfirmBuyGUI extends GUI {
     public ConfirmBuyGUI(MarketPlace marketPlace, Player player, ListingUtil.Listing listing, double price) {
         super(StringUtil.format(marketPlace.getConfigManager().getConfig(ConfigType.GUI)
                         .getString("confirmbuy-gui.name", "&aConfirm Purchase")),
-                marketPlace.getConfigManager().getConfig(ConfigType.GUI).getInt("confirmbuy-gui.rows", 3)
-                ,
+                marketPlace.getConfigManager().getConfig(ConfigType.GUI).getInt("confirmbuy-gui.rows", 3),
                 player);
         this.marketPlace = marketPlace;
         this.player = player;
@@ -54,24 +54,32 @@ public class ConfirmBuyGUI extends GUI {
         setupGUI();
     }
 
+    /**
+     * Sets up the GUI by adding the confirm and cancel buttons.
+     */
     private void setupGUI() {
-        // --- Confirm Button ---
+        // --- Confirm Button Setup ---
         int confirmSlot = guiConfig.getInt("confirmbuy-gui.confirm.slot", 11);
         Material confirmMat = Material.matchMaterial(guiConfig.getString("confirmbuy-gui.confirm.material", "GREEN_STAINED_GLASS_PANE"));
         ItemStack confirmItem = new ItemStack(confirmMat);
         ItemMeta confirmMeta = confirmItem.getItemMeta();
         if (confirmMeta != null) {
+            // Set the display name for the confirm button.
             confirmMeta.setDisplayName(StringUtil.format(guiConfig.getString("confirmbuy-gui.confirm.name", "&aConfirm Purchase")));
+            // Set the lore with replaced placeholders.
             List<String> confirmLore = guiConfig.getStringList("confirmbuy-gui.confirm.lore")
                     .stream().map(s -> StringUtil.format(
                             s.replace("%item%", StringUtil.formatItem(listing.item))
-                                    .replace("%amount%", listing.item.getAmount() + "")
-                                    .replace("%price%", price + ""))).collect(Collectors.toList());
+                                    .replace("%amount%", String.valueOf(listing.item.getAmount()))
+                                    .replace("%price%", String.valueOf(price))
+                    )).collect(Collectors.toList());
             confirmMeta.setLore(confirmLore);
             confirmItem.setItemMeta(confirmMeta);
         }
+        // Add the confirm button to the GUI.
         setItem(confirmSlot, new GUIItem(confirmItem, e -> {
             e.setCancelled(true);
+            // Check if the player has enough balance.
             if (marketPlace.getEconomy().getBalance(player) < price) {
                 String failMsg = messagesConfig.getString("confirmbuy-gui.failure-message", "&cYou cannot afford this item!");
                 player.sendMessage(StringUtil.format(failMsg));
@@ -82,7 +90,7 @@ public class ConfirmBuyGUI extends GUI {
                     player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
                 }
             } else {
-                // Deduct the money and give the item.
+                // Process the purchase.
                 player.closeInventory();
                 marketPlace.getEconomy().withdrawPlayer(player, price);
                 player.getInventory().addItem(listing.item);
@@ -94,13 +102,14 @@ public class ConfirmBuyGUI extends GUI {
                 } catch (IllegalArgumentException ex) {
                     player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
                 }
-                // Record the transaction (buyer, seller, item, price).
+                // Record the transaction.
                 marketPlace.getMongoDBManager().recordTransaction(
                         player.getUniqueId().toString(),
                         listing.doc.getString("playerId"),
                         listing.item,
-                        price);
-
+                        price
+                );
+                // Log the purchase to Discord.
                 marketPlace.getDiscordWebhookLogger().sendPurchaseLog(
                         player.getName(),
                         getSellerName(listing.doc.getString("playerId")),
@@ -109,24 +118,26 @@ public class ConfirmBuyGUI extends GUI {
                         price,
                         formatTimestamp(listing.doc.getLong("timestamp"))
                 );
-                // Remove the listing from the marketplace (using its unique _id).
+                // Remove the listing from the marketplace.
                 marketPlace.getMongoDBManager().deleteValue("itemListings", new Document("_id", listing.doc.get("_id")));
             }
         }));
 
-
-        // --- Cancel Button ---
+        // --- Cancel Button Setup ---
         int cancelSlot = guiConfig.getInt("confirmbuy-gui.cancel.slot", 15);
         Material cancelMat = Material.matchMaterial(guiConfig.getString("confirmbuy-gui.cancel.material", "RED_STAINED_GLASS_PANE"));
         ItemStack cancelItem = new ItemStack(cancelMat);
         ItemMeta cancelMeta = cancelItem.getItemMeta();
         if (cancelMeta != null) {
+            // Set the display name for the cancel button.
             cancelMeta.setDisplayName(StringUtil.format(guiConfig.getString("confirmbuy-gui.cancel.name", "&cCancel")));
+            // Set the lore for the cancel button.
             List<String> cancelLore = guiConfig.getStringList("confirmbuy-gui.cancel.lore")
                     .stream().map(StringUtil::format).collect(Collectors.toList());
             cancelMeta.setLore(cancelLore);
             cancelItem.setItemMeta(cancelMeta);
         }
+        // Add the cancel button to the GUI.
         setItem(cancelSlot, new GUIItem(cancelItem, e -> {
             e.setCancelled(true);
             String cancelMsg = messagesConfig.getString("confirmbuy-gui.cancel-message", "&cPurchase cancelled.");

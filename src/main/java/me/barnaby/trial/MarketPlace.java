@@ -16,6 +16,9 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+/**
+ * Main class for the MarketPlace plugin.
+ */
 public class MarketPlace extends JavaPlugin {
 
     private final ConfigManager configManager = new ConfigManager(this);
@@ -25,14 +28,18 @@ public class MarketPlace extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        // Connect to MongoDB.
         mongoDBManager.connect();
 
+        // Register commands and event listeners.
         registerCommands();
         registerListeners();
 
+        // Setup Vault economy and log plugin enable status.
         setupEconomy();
         sendEnableMessage();
 
+        // Register Discord webhook for transaction logging.
         registerDiscordHook();
     }
 
@@ -41,19 +48,30 @@ public class MarketPlace extends JavaPlugin {
         sendDisableMessage();
     }
 
+    /**
+     * Registers all event listeners.
+     */
     private void registerListeners() {
         PluginManager pm = Bukkit.getPluginManager();
         pm.registerEvents(new PlayerListeners(), this);
     }
 
+    /**
+     * Registers all commands and sets their executors.
+     */
     private void registerCommands() {
         getCommand("sell").setExecutor(new SellCommand(this));
         getCommand("marketplace").setExecutor(new MarketplaceCommand(this));
         getCommand("transactions").setExecutor(new TransactionsCommand(this));
     }
 
+    /**
+     * Initializes the Discord webhook logger from the configuration.
+     */
     public void registerDiscordHook() {
-        ConfigurationSection discordConfig = getConfigManager().getConfig(ConfigType.MAIN).getConfigurationSection("discord");
+        ConfigurationSection discordConfig = getConfigManager()
+                .getConfig(ConfigType.MAIN)
+                .getConfigurationSection("discord");
         String webhookUrl = discordConfig.getString("webhook");
         String embedTitle = discordConfig.getString("embed.title", "Transaction Log");
         String embedColor = discordConfig.getString("embed.color", "#00FF00");
@@ -62,18 +80,36 @@ public class MarketPlace extends JavaPlugin {
         discordWebhookLogger = new DiscordWebhookLogger(webhookUrl, embedTitle, embedDescriptionTemplate, embedColor);
     }
 
+    /**
+     * Returns the configuration manager.
+     *
+     * @return the ConfigManager instance.
+     */
     public ConfigManager getConfigManager() {
         return configManager;
     }
 
+    /**
+     * Returns the MongoDB manager.
+     *
+     * @return the MongoDBManager instance.
+     */
     public MongoDBManager getMongoDBManager() {
         return mongoDBManager;
     }
 
+    /**
+     * Returns the Discord webhook logger.
+     *
+     * @return the DiscordWebhookLogger instance.
+     */
     public DiscordWebhookLogger getDiscordWebhookLogger() {
         return discordWebhookLogger;
     }
 
+    /**
+     * Sends an enable message to the console.
+     */
     private void sendEnableMessage() {
         String pluginName = getDescription().getName();
         String version = getDescription().getVersion();
@@ -86,6 +122,9 @@ public class MarketPlace extends JavaPlugin {
         Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_AQUA + "============================================");
     }
 
+    /**
+     * Sends a disable message to the console.
+     */
     private void sendDisableMessage() {
         Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_RED + "============================================");
         Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "  " + getDescription().getName() + " is now disabled.");
@@ -115,11 +154,10 @@ public class MarketPlace extends JavaPlugin {
     /**
      * Returns the Vault Economy instance.
      *
-     * @return the economy instance.
+     * @return the Economy instance.
      */
     public Economy getEconomy() {
         return economy;
     }
-
 }
 

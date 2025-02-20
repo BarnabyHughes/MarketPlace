@@ -4,6 +4,9 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+/**
+ * Handles sending purchase transaction logs to a Discord webhook.
+ */
 public class DiscordWebhookLogger {
 
     private final String webhookUrl;
@@ -11,6 +14,14 @@ public class DiscordWebhookLogger {
     private final String embedDescriptionTemplate;
     private final String embedColor; // Hex color code (e.g., "#00FF00")
 
+    /**
+     * Constructs a DiscordWebhookLogger.
+     *
+     * @param webhookUrl              The webhook URL to send messages to.
+     * @param embedTitle              The title of the Discord embed.
+     * @param embedDescriptionTemplate The description template with placeholders.
+     * @param embedColor              The hex color code of the embed.
+     */
     public DiscordWebhookLogger(String webhookUrl, String embedTitle, String embedDescriptionTemplate, String embedColor) {
         this.webhookUrl = webhookUrl;
         this.embedTitle = embedTitle;
@@ -18,13 +29,23 @@ public class DiscordWebhookLogger {
         this.embedColor = embedColor;
     }
 
+    /**
+     * Sends a purchase transaction log to Discord via a webhook.
+     *
+     * @param buyerName Name of the player who bought the item.
+     * @param sellerName Name of the player who sold the item.
+     * @param itemName Name of the purchased item.
+     * @param amount Quantity of the purchased item.
+     * @param price Price of the item.
+     * @param time The timestamp of the transaction.
+     */
     public void sendPurchaseLog(String buyerName, String sellerName, String itemName, int amount, double price, String time) {
         // Convert embed color from hex (e.g., "#00FF00") to an integer value
         int colorValue;
         try {
             colorValue = Integer.parseInt(embedColor.replace("#", ""), 16);
         } catch (NumberFormatException e) {
-            colorValue = 0xFFFFFF; // default to white if parsing fails
+            colorValue = 0xFFFFFF; // Default to white if parsing fails
         }
 
         // Replace placeholders in the embed description template
@@ -36,6 +57,7 @@ public class DiscordWebhookLogger {
                 .replace("%buyer%", buyerName)
                 .replace("%seller%", sellerName);
 
+        // Construct the JSON payload for the Discord webhook
         String jsonPayload = "{\"embeds\":[{" +
                 "\"title\":\"" + escapeJson(embedTitle) + "\"," +
                 "\"description\":\"" + escapeJson(description) + "\"," +
@@ -62,10 +84,14 @@ public class DiscordWebhookLogger {
         }
     }
 
-    // A simple method to escape JSON special characters.
+    /**
+     * Escapes JSON special characters to prevent formatting issues.
+     *
+     * @param text The input string to escape.
+     * @return The escaped string safe for JSON.
+     */
     private String escapeJson(String text) {
         if (text == null) return "";
         return text.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 }
-

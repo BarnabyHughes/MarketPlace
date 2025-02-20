@@ -153,48 +153,6 @@ public class MongoDBManager {
         collection.deleteOne(query);
     }
 
-    // ----------------------------
-    // Specific Methods Based on the PDF Requirements
-    // ----------------------------
-
-    /**
-     * Inserts new player data into the "playerData" collection.
-     *
-     * @param playerId The unique identifier of the player.
-     * @param data A Document containing the player's data.
-     */
-    public void insertPlayerData(String playerId, Document data) {
-        MongoCollection<Document> collection = getCollection("playerData");
-        data.append("playerId", playerId);
-        collection.insertOne(data);
-    }
-
-    /**
-     * Updates an existing player's data.
-     *
-     * @param playerId The player's unique identifier.
-     * @param data A Document containing the updated player data.
-     */
-    public void updatePlayerData(String playerId, Document data) {
-        MongoCollection<Document> collection = getCollection("playerData");
-        collection.updateOne(
-                new Document("playerId", playerId),
-                new Document("$set", data),
-                new UpdateOptions().upsert(true)
-        );
-    }
-
-    /**
-     * Retrieves player data from the "playerData" collection.
-     *
-     * @param playerId The player's unique identifier.
-     * @return The Document containing player data, or null if not found.
-     */
-    public Document getPlayerData(String playerId) {
-        MongoCollection<Document> collection = getCollection("playerData");
-        return collection.find(new Document("playerId", playerId)).first();
-    }
-
     /**
      * Inserts a new item listing into the "itemListings" collection.
      *
@@ -268,6 +226,4 @@ public class MongoDBManager {
                 .append("timestamp", System.currentTimeMillis());
         insertTransaction(transaction);
     }
-
-
 }
