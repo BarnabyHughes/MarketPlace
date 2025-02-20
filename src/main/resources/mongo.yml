@@ -1,0 +1,11 @@
+# MongoDB connection settings
+
+# URI of the MongoDB instance (include credentials in the URI if preferred)
+uri: "mongodb://localhost:27017"
+
+# Name of the database to connect to
+database: "marketplace"
+
+# Optional credentials for authentication
+username: ""   # Replace with your MongoDB username
+password: ""   # Replace with your MongoDB password

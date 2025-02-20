@@ -1,5 +1,7 @@
 plugins {
     id("java")
+    id("com.gradleup.shadow") version "8.3.0"
+
 }
 
 group = "org.example"
@@ -12,31 +14,52 @@ repositories {
 dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
-    testImplementation("org.mongodb:mongodb-driver-sync:4.10.2")
 
+    // MongoDB driver needed at runtime.
+    implementation("org.mongodb:mongodb-driver-sync:4.10.2")
 
-
-    // Corrected Spigot API reference
+    // Spigot API (provided as compileOnly).
     compileOnly(files("libs/spigot-api-1.21.4-R0.1-SNAPSHOT.jar"))
+
+    // Explicitly add ASM dependencies that support Java 21.
+    implementation("org.ow2.asm:asm:9.4")
+    implementation("org.ow2.asm:asm-commons:9.4")
+}
+
+// Force any dependency on ASM to use version 9.4.
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.ow2.asm") {
+            useVersion("9.4")
+        }
+    }
 }
 
 tasks.test {
     useJUnitPlatform()
 }
 
-// Set Java version
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(21)) // Ensure compatibility with Minecraft versions
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
-// Automatically copy the built JAR to IntelliJ project directory: /server/plugins/
+tasks.shadowJar {
+    archiveClassifier.set("") // Remove classifier to override the default JAR name.
+
+    // Relocate MongoDB driver packages to avoid conflicts with other plugins.
+    relocate("org.bson", "org.example.shaded.org.bson")
+    relocate("com.mongodb", "org.example.shaded.com.mongodb")
+}
+
+// Automatically copy the built shadow JAR to the server plugins directory.
 tasks.register<Copy>("copyToIntelliJServer") {
-    dependsOn(tasks.build)
+    dependsOn(tasks.shadowJar)
     from(layout.buildDirectory.file("libs/${project.name}-${project.version}.jar"))
-    into(file("${rootProject.rootDir}/server/plugins/")) // Target IntelliJ's directory
+    into(file("${rootProject.rootDir}/server/plugins/"))
 }
 
-// Ensure the JAR is copied after build
+// Ensure the JAR is copied after build.
 tasks.build {
     finalizedBy("copyToIntelliJServer")
 }
+

@@ -1,6 +1,9 @@
 package me.barnaby.trial;
 
+import me.barnaby.trial.commands.MarketplaceCommand;
+import me.barnaby.trial.commands.SellCommand;
 import me.barnaby.trial.config.ConfigManager;
+import me.barnaby.trial.mongo.MongoDBManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -8,23 +11,33 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class MarketPlace extends JavaPlugin {
 
     private final ConfigManager configManager = new ConfigManager(this);
+    private final MongoDBManager mongoDBManager = new MongoDBManager(this);
 
     @Override
     public void onEnable() {
         sendEnableMessage();
+        registerCommands();
 
-
+        mongoDBManager.connect();
     }
-
-
 
     @Override
     public void onDisable() {
         sendDisableMessage();
     }
 
+
+    public void registerCommands() {
+        getCommand("sell").setExecutor(new SellCommand(this));
+        getCommand("marketplace").setExecutor(new MarketplaceCommand(this));
+    }
+
     public ConfigManager getConfigManager() {
         return configManager;
+    }
+
+    public MongoDBManager getMongoDBManager() {
+        return mongoDBManager;
     }
 
     private void sendEnableMessage() {
