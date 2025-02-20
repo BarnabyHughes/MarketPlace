@@ -236,7 +236,9 @@ public class MongoDBManager {
         List<Document> allListings = getAllItemListings();
         if (allListings.isEmpty()) return;
 
-        int itemsToMove = Math.min(5, allListings.size());
+        int itemsToMove = Math.min(
+                plugin.getConfigManager().getConfig(ConfigType.MAIN)
+                        .getInt("blackmarket.items-count"), allListings.size());
 
         for (int i = 0; i < itemsToMove; i++) {
             Document listing = allListings.get(new Random().nextInt(allListings.size()));

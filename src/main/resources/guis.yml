@@ -55,7 +55,7 @@ marketplace-gui:
 
 blackmarket-gui:
   name: "&8Black Market"
-  rows: 3
+  rows: 4
   can-afford-item-name: "&a&l%item-name%"
   cannot-afford-item-name: "&c&l%item-name%"
   can-afford-item-lore:
@@ -75,13 +75,13 @@ blackmarket-gui:
     start-slot: 0
     end-slot: 26
   next-page:
-    slot: 26
+    slot: 35
     material: "ARROW"
     name: "&aNext Page"
     lore:
       - "&7Go to the next page"
   previous-page:
-    slot: 18
+    slot: 27
     material: "ARROW"
     name: "&aPrevious Page"
     lore:

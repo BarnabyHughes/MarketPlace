@@ -19,4 +19,5 @@ blackmarket:
   add-items-every: 86400 # seconds - default: 1 day in seconds
   price-modifier: 0.5
   sell-bonus: 2 # this would mean the seller gains 2x what they sold it for
+  items-count: 5 # amount of items to add every x seconds
 

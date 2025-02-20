@@ -8,7 +8,7 @@ import me.barnaby.trial.gui.GUIItem;
 import me.barnaby.trial.util.ListingUtil;
 import me.barnaby.trial.util.StringUtil;
 import org.bson.Document;
-import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static me.barnaby.trial.util.ListingUtil.formatTimestamp;
-import static me.barnaby.trial.util.ListingUtil.getSellerName;
 
 /**
  * GUI for displaying and interacting with the marketplace listings.
@@ -130,6 +129,10 @@ public class MarketPlaceGUI extends GUI {
                 }
                 setItem(slot, new GUIItem(displayItem, e -> {
                     e.setCancelled(true);
+                    if (listing.doc.getString("playerId").equals(player.getUniqueId().toString())) {
+                        player.sendMessage(ChatColor.RED + "This is your own market listing!");
+                        return;
+                    }
                     if (!canAfford) {
                         // Send cannot-afford message.
                         String msg = guiConfig.getString(isBlackMarket ? "blackmarket-gui.cannot-afford-message" : "marketplace-gui.cannot-afford-message", "&cYou cannot afford this item!");

@@ -59,15 +59,19 @@ public class BlackMarketCommand implements CommandExecutor {
             return true;
         }
 
-        else if (args[0].equalsIgnoreCase("test")) {
-            marketPlace.getMongoDBManager().insertItemListing(
-                    new org.bson.Document("playerId", player.getUniqueId().toString())
-                            .append("price", new Random().nextDouble() * 1000)
-                            .append("itemData", Base64ItemStack.encode(
-                                    new ItemStack(Material.values()[new Random().nextInt(Material.values().length)])
-                            ))
-                            .append("timestamp", System.currentTimeMillis())
-            );
+        else if (args[0].equalsIgnoreCase("testitem")) {
+            for (int i = 0; i< 5; i++) {
+                marketPlace.getMongoDBManager().insertItemListing(
+                        new org.bson.Document("playerId", player.getUniqueId().toString())
+                                .append("price", new Random().nextDouble() * 1000)
+                                .append("itemData", Base64ItemStack.encode(
+                                        new ItemStack(Material.values()[new Random().nextInt(Material.values().length)])
+                                ))
+                                .append("timestamp", System.currentTimeMillis())
+                );
+                player.sendMessage("Added test item!");
+            }
+            return true;
         }
 
         // Invalid argument handling
