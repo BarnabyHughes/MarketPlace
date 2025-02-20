@@ -4,3 +4,10 @@ permissions:
   blackmarket: marketplace.blackmarket # permission to access the black market
   history: marketplace.history # permission to view a users transaction history
 
+discord:
+  webhook: "https://discordapp.com/api/webhooks/your_webhook_url"
+  embed:
+    title: "Transaction Log"
+    color: "#00FF00"
+    description: "A purchase was made: %item% x%amount% for $%price% at %time% by %buyer% from %seller%"
+

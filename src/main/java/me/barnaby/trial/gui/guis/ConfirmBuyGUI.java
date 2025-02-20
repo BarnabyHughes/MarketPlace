@@ -4,6 +4,7 @@ import me.barnaby.trial.MarketPlace;
 import me.barnaby.trial.config.ConfigType;
 import me.barnaby.trial.gui.GUI;
 import me.barnaby.trial.gui.GUIItem;
+import me.barnaby.trial.util.ListingUtil;
 import me.barnaby.trial.util.StringUtil;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -16,12 +17,15 @@ import org.bson.Document;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static me.barnaby.trial.util.ListingUtil.formatTimestamp;
+import static me.barnaby.trial.util.ListingUtil.getSellerName;
+
 public class ConfirmBuyGUI extends GUI {
 
     private final MarketPlace marketPlace;
     private final Player player;
     // The listing being purchased (contains the item and its document)
-    private final MarketPlaceGUI.Listing listing;
+    private final ListingUtil.Listing listing;
     private final double price;
     private final FileConfiguration guiConfig;
     private final FileConfiguration messagesConfig;
@@ -35,7 +39,7 @@ public class ConfirmBuyGUI extends GUI {
      * @param listing     The listing (item + document) being purchased.
      * @param price       The price of the item.
      */
-    public ConfirmBuyGUI(MarketPlace marketPlace, Player player, MarketPlaceGUI.Listing listing, double price) {
+    public ConfirmBuyGUI(MarketPlace marketPlace, Player player, ListingUtil.Listing listing, double price) {
         super(StringUtil.format(marketPlace.getConfigManager().getConfig(ConfigType.GUI)
                         .getString("confirmbuy-gui.name", "&aConfirm Purchase")),
                 marketPlace.getConfigManager().getConfig(ConfigType.GUI).getInt("confirmbuy-gui.rows", 3)
@@ -79,6 +83,7 @@ public class ConfirmBuyGUI extends GUI {
                 }
             } else {
                 // Deduct the money and give the item.
+                player.closeInventory();
                 marketPlace.getEconomy().withdrawPlayer(player, price);
                 player.getInventory().addItem(listing.item);
                 String successMsg = messagesConfig.getString("confirmbuy-gui.success-message", "&aPurchase successful!");
@@ -95,9 +100,17 @@ public class ConfirmBuyGUI extends GUI {
                         listing.doc.getString("playerId"),
                         listing.item,
                         price);
+
+                marketPlace.getDiscordWebhookLogger().sendPurchaseLog(
+                        player.getName(),
+                        getSellerName(listing.doc.getString("playerId")),
+                        StringUtil.formatItem(listing.item),
+                        listing.item.getAmount(),
+                        price,
+                        formatTimestamp(listing.doc.getLong("timestamp"))
+                );
                 // Remove the listing from the marketplace (using its unique _id).
                 marketPlace.getMongoDBManager().deleteValue("itemListings", new Document("_id", listing.doc.get("_id")));
-                player.closeInventory();
             }
         }));
 

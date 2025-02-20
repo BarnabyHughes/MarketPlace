@@ -5,6 +5,7 @@ import me.barnaby.trial.MarketPlace;
 import me.barnaby.trial.config.ConfigType;
 import me.barnaby.trial.gui.GUI;
 import me.barnaby.trial.gui.GUIItem;
+import me.barnaby.trial.util.ListingUtil;
 import me.barnaby.trial.util.StringUtil;
 import org.bson.Document;
 import org.bukkit.Bukkit;
@@ -23,6 +24,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static me.barnaby.trial.util.ListingUtil.formatTimestamp;
+import static me.barnaby.trial.util.ListingUtil.getSellerName;
+
 public class MarketPlaceGUI extends GUI {
 
     private final MarketPlace marketPlace;
@@ -30,7 +34,7 @@ public class MarketPlaceGUI extends GUI {
     private final int page;
     private final FileConfiguration guiConfig;
     // List of all marketplace listings (each with its item and associated document)
-    private final List<Listing> marketplaceListings;
+    private final List<ListingUtil.Listing> marketplaceListings;
 
     /**
      * Constructs a paginated marketplace GUI.
@@ -59,15 +63,15 @@ public class MarketPlaceGUI extends GUI {
      *
      * @return A list of Listing objects.
      */
-    private List<Listing> loadMarketplaceListings() {
+    private List<ListingUtil.Listing> loadMarketplaceListings() {
         List<Document> docs = marketPlace.getMongoDBManager().getAllItemListings(); // Assumes this method exists.
-        List<Listing> listings = new ArrayList<>();
+        List<ListingUtil.Listing> listings = new ArrayList<>();
         for (Document doc : docs) {
             String itemData = doc.get("itemData", String.class);
             if (itemData != null) {
                 try {
                     ItemStack item = Base64ItemStack.decode(itemData);
-                    listings.add(new Listing(item, doc));
+                    listings.add(new ListingUtil.Listing(item, doc));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -91,7 +95,7 @@ public class MarketPlaceGUI extends GUI {
         for (int slot = itemsStart; slot <= itemsEnd; slot++) {
             int listingIndex = startIndex + (slot - itemsStart);
             if (listingIndex < marketplaceListings.size()) {
-                Listing listing = marketplaceListings.get(listingIndex);
+                ListingUtil.Listing listing = marketplaceListings.get(listingIndex);
                 // Clone the item so as not to modify the original.
                 ItemStack displayItem = listing.item.clone();
                 ItemMeta meta = displayItem.getItemMeta();
@@ -198,46 +202,6 @@ public class MarketPlaceGUI extends GUI {
                 e.setCancelled(true);
                 new MarketPlaceGUI(marketPlace, player, page - 1).open(player);
             }));
-        }
-    }
-
-    /**
-     * Formats a timestamp (in milliseconds) into a human-readable date/time string.
-     *
-     * @param timestamp The timestamp in milliseconds.
-     * @return A formatted date/time string.
-     */
-    private String formatTimestamp(long timestamp) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-                .withZone(ZoneId.systemDefault());
-        return formatter.format(Instant.ofEpochMilli(timestamp));
-    }
-
-    /**
-     * Retrieves the seller's name given their UUID string.
-     *
-     * @param uuidStr The seller's UUID as a string.
-     * @return The seller's name, or the UUID if no name is found.
-     */
-    private String getSellerName(String uuidStr) {
-        try {
-            UUID uuid = UUID.fromString(uuidStr);
-            return Bukkit.getOfflinePlayer(uuid).getName() != null ? Bukkit.getOfflinePlayer(uuid).getName() : uuidStr;
-        } catch (Exception e) {
-            return uuidStr;
-        }
-    }
-
-    /**
-     * A helper inner class to wrap an ItemStack with its associated Document.
-     */
-    public static class Listing {
-        public final ItemStack item;
-        public final Document doc;
-
-        public Listing(ItemStack item, Document doc) {
-            this.item = item;
-            this.doc = doc;
         }
     }
 }
