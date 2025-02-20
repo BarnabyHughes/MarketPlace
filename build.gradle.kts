@@ -3,7 +3,7 @@ plugins {
     id("com.gradleup.shadow") version "8.3.0"
 }
 
-group = "org.example"
+group = "me.barnaby.trial"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -19,10 +19,13 @@ dependencies {
 
     // MongoDB driver needed at runtime.
     implementation("org.mongodb:mongodb-driver-sync:4.10.2")
+    implementation("dev.s7a:base64-itemstack:1.0.0")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
 
     // Spigot API (provided as compileOnly).
     compileOnly(files("libs/spigot-api-1.21.4-R0.1-SNAPSHOT.jar"))
+    compileOnly(files("libs/craftbukkit-1.21.4-R0.1-SNAPSHOT.jar"))
+
 
     // Explicitly add ASM dependencies that support Java 21/22.
     implementation("org.ow2.asm:asm:9.4")
@@ -51,8 +54,8 @@ tasks.shadowJar {
     archiveClassifier.set("") // Remove classifier to override the default JAR name.
 
     // Relocate MongoDB driver packages to avoid conflicts with other plugins.
-    relocate("org.bson", "org.example.shaded.org.bson")
-    relocate("com.mongodb", "org.example.shaded.com.mongodb")
+    relocate("org.bson", "me.barnaby.trial.shaded.org.bson")
+    relocate("com.mongodb", "me.barnaby.trial.shaded.com.mongodb")
 }
 
 // Automatically copy the built shadow JAR to the server plugins directory.

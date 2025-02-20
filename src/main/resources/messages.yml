@@ -9,3 +9,7 @@ buy-messages:
   failure-message: "&cYou cannot afford this item!"
   failure-sound: "ENTITY_VILLAGER_NO"
   cancel-message: "&cPurchase cancelled."
+
+transaction:
+  buy: "Bought %item% x%amount% for $%price% on %time%"
+  sell: "Sold %item% x%amount% for $%price% on %time%"

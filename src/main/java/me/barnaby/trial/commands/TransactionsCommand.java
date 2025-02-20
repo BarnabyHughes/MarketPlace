@@ -1,6 +1,8 @@
 package me.barnaby.trial.commands;
 
+import dev.s7a.base64.Base64ItemStack;
 import me.barnaby.trial.MarketPlace;
+import me.barnaby.trial.config.ConfigType;
 import me.barnaby.trial.util.StringUtil;
 import org.bson.Document;
 import org.bukkit.Bukkit;
@@ -8,6 +10,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -55,25 +58,44 @@ public class TransactionsCommand implements CommandExecutor {
             return true;
         }
         sender.sendMessage(ChatColor.GOLD + "Transaction History for " + targetName + ":");
+
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        // Retrieve the messages configuration once
+        FileConfiguration messagesConfig = plugin.getConfigManager().getConfig(ConfigType.MESSAGES);
+
         for (Document doc : transactions) {
             String buyerId = doc.getString("buyerId");
             String sellerId = doc.getString("sellerId");
             double price = doc.getDouble("price");
+
             // Deserialize itemData.
             @SuppressWarnings("unchecked")
-            ItemStack item = ItemStack.deserialize((Document) doc.get("itemData"));
+            ItemStack item = Base64ItemStack.decode(doc.get("itemData", String.class));
             int amount = item.getAmount();
             String itemName = StringUtil.formatItem(item);
             String time = dateFormat.format(new Date(doc.getLong("timestamp")));
             String line = "";
+
+            // Determine the proper template based on whether the target is the buyer or seller
+            String template = "";
             if (targetId.equals(buyerId)) {
-                line = "Bought " + itemName + " x" + amount + " for $" + price + " on " + time;
+                template = messagesConfig.getString("transaction.buy",
+                        "Bought %item% x%amount% for $%price% on %time%");
             } else if (targetId.equals(sellerId)) {
-                line = "Sold " + itemName + " x" + amount + " for $" + price + " on " + time;
+                template = messagesConfig.getString("transaction.sell",
+                        "Sold %item% x%amount% for $%price% on %time%");
             }
+
+            // Replace placeholders
+            line = template.replace("%item%", itemName)
+                    .replace("%amount%", String.valueOf(amount))
+                    .replace("%price%", String.valueOf(price))
+                    .replace("%time%", time);
+
             sender.sendMessage(ChatColor.GREEN + StringUtil.format(line));
         }
         return true;
     }
 }
+

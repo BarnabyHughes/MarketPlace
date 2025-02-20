@@ -8,15 +8,21 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.UpdateOptions;
+import dev.s7a.base64.Base64ItemStack;
 import me.barnaby.trial.MarketPlace;
 import me.barnaby.trial.config.ConfigType;
 import org.bson.Document;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.codecs.pojo.PojoCodecProvider;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
+import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
 /**
  * MongoDBManager handles connecting to MongoDB using settings from mongo.yml,
@@ -64,9 +70,12 @@ public class MongoDBManager {
                     .credential(credential)
                     .build();
         } else {
+            CodecRegistry pojoCodecRegistry = fromRegistries(MongoClientSettings.getDefaultCodecRegistry(),
+                    fromProviders(PojoCodecProvider.builder().automatic(true).build()));
             // Otherwise, connect without authentication.
             settings = MongoClientSettings.builder()
                     .applyConnectionString(new ConnectionString(uri))
+                    .codecRegistry(pojoCodecRegistry)
                     .build();
         }
 
@@ -252,7 +261,7 @@ public class MongoDBManager {
         Document transaction = new Document();
         transaction.append("buyerId", buyerId)
                 .append("sellerId", sellerId)
-                .append("itemData", item.serialize())
+                .append("itemData", Base64ItemStack.encode(item))
                 .append("price", price)
                 .append("timestamp", System.currentTimeMillis());
         insertTransaction(transaction);

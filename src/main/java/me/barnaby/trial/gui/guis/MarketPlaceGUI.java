@@ -1,5 +1,6 @@
 package me.barnaby.trial.gui.guis;
 
+import dev.s7a.base64.Base64ItemStack;
 import me.barnaby.trial.MarketPlace;
 import me.barnaby.trial.config.ConfigType;
 import me.barnaby.trial.gui.GUI;
@@ -62,10 +63,10 @@ public class MarketPlaceGUI extends GUI {
         List<Document> docs = marketPlace.getMongoDBManager().getAllItemListings(); // Assumes this method exists.
         List<Listing> listings = new ArrayList<>();
         for (Document doc : docs) {
-            Map<String, Object> itemData = doc.get("itemData", Map.class);
+            String itemData = doc.get("itemData", String.class);
             if (itemData != null) {
                 try {
-                    ItemStack item = ItemStack.deserialize(itemData);
+                    ItemStack item = Base64ItemStack.decode(itemData);
                     listings.add(new Listing(item, doc));
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -137,7 +138,6 @@ public class MarketPlaceGUI extends GUI {
                     displayItem.setItemMeta(meta);
                 }
                 setItem(slot, new GUIItem(displayItem, e -> {
-                    System.out.println("test");
                     e.setCancelled(true);
                     if (!canAfford) {
                         // Get a configurable "cannot afford" message and sound
