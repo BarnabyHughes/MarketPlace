@@ -5,15 +5,18 @@ import me.barnaby.trial.commands.SellCommand;
 import me.barnaby.trial.config.ConfigManager;
 import me.barnaby.trial.listener.PlayerListeners;
 import me.barnaby.trial.mongo.MongoDBManager;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class MarketPlace extends JavaPlugin {
 
     private final ConfigManager configManager = new ConfigManager(this);
     private final MongoDBManager mongoDBManager = new MongoDBManager(this);
+    private Economy economy;
 
     @Override
     public void onEnable() {
@@ -22,6 +25,7 @@ public class MarketPlace extends JavaPlugin {
         registerCommands();
         registerListeners();
 
+        setupEconomy();
         sendEnableMessage();
     }
 
@@ -65,5 +69,35 @@ public class MarketPlace extends JavaPlugin {
         Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "  " + getDescription().getName() + " is now disabled.");
         Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_RED + "============================================");
     }
+
+    /**
+     * Sets up the economy instance using Vault.
+     *
+     * @return true if successful; false otherwise.
+     */
+    private boolean setupEconomy() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            getLogger().severe("Could not find Vault for Economy!");
+            return false;
+        }
+
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            getLogger().severe("Could not find Economy!");
+            return false;
+        }
+        economy = rsp.getProvider();
+        return true;
+    }
+
+    /**
+     * Returns the Vault Economy instance.
+     *
+     * @return the economy instance.
+     */
+    public Economy getEconomy() {
+        return economy;
+    }
+
 }
 
