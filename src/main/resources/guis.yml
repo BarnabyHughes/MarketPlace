@@ -58,9 +58,18 @@ blackmarket-gui:
   rows: 3
   can-afford-item-name: "&a&l%item-name%"
   cannot-afford-item-name: "&c&l%item-name%"
-  item-lore:
-    - "&7Seller: %seller%"
-    - "&6Price: $%price%"
+  can-afford-item-lore:
+    - "&fPrice: &a$%price%"
+    - "&fSeller: &a%seller%"
+    - "&fListed: &a%listedTime%"
+    - ""
+    - "&a&lClick to buy"
+  cannot-afford-item-lore:
+    - "&fPrice: &c$%price%"
+    - "&fSeller: &c%seller%"
+    - "&fListed: &c%listedTime%"
+    - ""
+    - "&c&mClick to buy!"
   cannot-afford-message: "&cYou cannot afford this item!"
   items-area:
     start-slot: 0
