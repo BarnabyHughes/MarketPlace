@@ -101,7 +101,8 @@ public class MarketPlaceGUI extends GUI {
                     boolean canAfford = marketPlace.getEconomy().getBalance(player) >= listingPrice;
 
                     // Determine the display name based on affordability.
-                    String defaultItemName = (meta.hasDisplayName() ? meta.getDisplayName() : displayItem.getType().name());
+                    String defaultItemName = (meta.hasDisplayName() ? meta.getDisplayName() :
+                            StringUtil.formatItem(displayItem));
                     String displayName;
                     if (canAfford) {
                         displayName = guiConfig.getString("marketplace-gui.can-afford-item-name", "&a&l%item-name%")
